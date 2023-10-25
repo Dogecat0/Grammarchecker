@@ -1,10 +1,10 @@
 import os
+
 import openai
 from dotenv import load_dotenv
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
@@ -58,17 +58,14 @@ async def check_grammar(request: Request, text_input: str = Form(...)):
         {
             "role": "user",
             "content": (
-                "Grammar check, then perform three tasks below and follow \
-                    the requirements\n"
-                "First task, give the original sentence a grammar score\n"
+                "Grammar check, then perform three tasks below and follow the requirements. \
+                    Please do not include the original sentence in your answer\n"
+                "First task, give the original sentence a grammar score. The grammar score should be between 0 and 100 \
+                    with one decimal in thr format 'score/100', and it cannot be None\n"
                 "Second task, list what have been changed\n"
                 "Third task, state the reason why you changed so\n"
-                "Requirements:\n"
-                "1. The grammar score should be between 0 and 100 with one \
-                    decimal in the format like 'score/100', and it cannot be None\n"
-                "2. Please do not return the original sentence\n"
                 f"Input text:{text_input}"
-            )
+            ),
         }
     ]
     response = openai.ChatCompletion.create(
@@ -80,7 +77,7 @@ async def check_grammar(request: Request, text_input: str = Form(...)):
     grammar_score = sections[0].split(": ")[1]
     changes = sections[1].split("\n")[1:]
     reasons = sections[2].split("\n")[1:]
-    
+
     context = {
         "request": request,
         "grammar_score": grammar_score,
