@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Grammar Check</title>
+
+    <script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script>
+    <link href="/static/css/output.css" rel=stylesheet>
+</head>
+<body>
+    <div class="container">
+        <p class="page-title">Welcome to Grammar Checker!</p>
+        <form class="form" hx-post="/check" hx-target="#result">
+            <p class="form-title">Write or Copy Your Text Here</p>
+            <textarea name="text_input" class="form-field-input"></textarea>
+            <button class="btn" type="submit">Check</button>
+        </form>
+        <div class="result-container" id="result">
+            {% include 'grammar_check_result.html' %}
+        </div>
+    </div>
+</body>
+</html>

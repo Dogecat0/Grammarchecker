@@ -1,0 +1,16 @@
+<div class="p-5 m-5">
+<p class="my-5 result-title">Grammar Score:</p>
+<p id="grammar_score">{{ grammar_score }}</p>
+<p class="my-5 result-title">Changes:</p>
+<ul id="changes">
+    {% for change in changes %}
+    <li>{{ change }}</li>
+    {% endfor %}
+</ul>
+<p class="my-5 result-title">Reasons for changes:</p>
+<ul id="reasons">
+    {% for reason in reasons %}
+    <li>{{ reason }}</li>
+    {% endfor %}
+</ul>
+</div>
