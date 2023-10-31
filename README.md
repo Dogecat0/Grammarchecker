@@ -24,10 +24,3 @@ A simple grammar checker that checks the grammar of the input text and returns t
 <hr>
 
 ![grammar_checker_ss](/grammar_checker_ui.png)
-
-
-### Next step
-
-<hr>
-
-Add errors and exceptions handling for the returned API response message.
