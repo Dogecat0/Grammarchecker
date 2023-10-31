@@ -1,2 +1,6 @@
 -r requirements.txt
 pre-commit
+pylint
+flake8
+black
+mypy
