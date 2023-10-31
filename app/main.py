@@ -1,3 +1,4 @@
+import json
 import os
 
 import openai
@@ -53,37 +54,70 @@ async def check_grammar(request: Request, text_input: str = Form(...)):
     Returns:
         TemplateResponse: Rendered HTML page containing grammar check results.
     """
-    model = "gpt-3.5-turbo-0613"
+    model = "gpt-3.5-turbo-16k-0613"
     messages = [
         {
             "role": "user",
-            "content": (
-                "Grammar check, then perform three tasks below and follow the requirements. \
-                    Please do not include the original sentence in your answer\n"
-                "First task, give the original sentence a grammar score. The grammar score should be between 0 and 100 \
-                    with one decimal in thr format 'score/100', and it cannot be None\n"
-                "Second task, list what have been changed\n"
-                "Third task, state the reason why you changed so\n"
-                f"Input text:{text_input}"
-            ),
+            "content": text_input,
         }
     ]
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-    )
-    response_message = response["choices"][0]["message"]
-    sections = response_message["content"].split("\n\n")
-    grammar_score = sections[0].split(": ")[1]
-    changes = sections[1].split("\n")[1:]
-    reasons = sections[2].split("\n")[1:]
+    functions = [
+        {
+            "name": "log_grammar_check",
+            "description": "Check the grammar of the input text",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "grammar_score": {
+                        "type": "integer",
+                        "description": "The grammar score of the input text, e.g. 85.5, please make sure the score is between 0 and 100",
+                    },
+                    "changes": {
+                        "type": "array",
+                        "description": "The list of changes made to the input text, e.g. 1. 'I am' -> 'I'm'",
+                        "items": {
+                            "type": "string",
+                        },
+                    },
+                    "reasons": {
+                        "type": "array",
+                        "description": "The list of reasons for the changes made to the input text, e.g. 1. 'I am' -> 'I'm' because 'I am' is informal",
+                        "items": {
+                            "type": "string",
+                        },
+                    },
+                },
+            },
+        }
+    ]
+
+    try:
+        response = openai.ChatCompletion.create(
+            model=model, messages=messages, functions=functions, function_call="auto"
+        )
+        json_response = json.loads(
+            response["choices"][0]["message"]["function_call"]["arguments"]
+        )
+    except json.JSONDecodeError:
+        error_message = "Oops! Something went wrong. Please try again."
+
+    grammar_score = json_response["grammar_score"]
+    changes = json_response["changes"]
+    reasons = json_response["reasons"]
+    error_message = error_message if error_message else None
 
     context = {
         "request": request,
         "grammar_score": grammar_score,
         "changes": changes,
         "reasons": reasons,
+        "error_message": error_message,
     }
 
-    print(sections)
     return templates.TemplateResponse("grammar_check_result.html", context)
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
