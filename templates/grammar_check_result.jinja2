@@ -1,16 +1,20 @@
 <div class="p-5 m-5">
+{% if error_message %}
+<p class="my-5 result-title">Error: {{error_message}}</p>
+{% else %}
 <p class="my-5 result-title">Grammar Score:</p>
 <p id="grammar_score">{{ grammar_score }}</p>
 <p class="my-5 result-title">Changes:</p>
 <ul id="changes">
     {% for change in changes %}
-    <li>{{ change }}</li>
+    <li>{{ loop.index }}. {{ change }}</li>
     {% endfor %}
 </ul>
 <p class="my-5 result-title">Reasons for changes:</p>
 <ul id="reasons">
     {% for reason in reasons %}
-    <li>{{ reason }}</li>
+    <li>{{ loop.index }}. {{ reason }}</li>
     {% endfor %}
 </ul>
+{% endif %}
 </div>
